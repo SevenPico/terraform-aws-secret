@@ -5,7 +5,7 @@ module "secret_update_sns_meta" {
   source     = "registry.terraform.io/cloudposse/label/null"
   version    = "0.25.0"
   context    = module.this.context
-  enabled    = module.this.enabled && var.create_secret_update_sns
+  enabled    = module.this.enabled && var.create_sns
   attributes = ["sns"]
 }
 
@@ -48,7 +48,7 @@ data "aws_iam_policy_document" "sns_policy_doc" {
     }
 
     dynamic "principals" {
-      for_each = var.secret_update_sns_pub_principals
+      for_each = var.sns_pub_principals
       content {
         type        = principals.key
         identifiers = principals.value
@@ -63,7 +63,7 @@ data "aws_iam_policy_document" "sns_policy_doc" {
     resources = [one(aws_sns_topic.secret_update[*].arn)]
 
     dynamic "principals" {
-      for_each = var.secret_update_sns_sub_principals
+      for_each = var.sns_sub_principals
       content {
         type        = principals.key
         identifiers = principals.value
@@ -97,7 +97,7 @@ resource "aws_cloudwatch_event_rule" "secret_update" {
       eventSource = ["secretsmanager.amazonaws.com"],
       eventName   = ["PutSecretValue", "UpdateSecret", "UpdateSecretVersionStage"]
       requestParameters = {
-        secretId = [local.create_secret ? one(aws_secretsmanager_secret.this[*].arn) : var.import_secret_arn]
+        secretId = [one(aws_secretsmanager_secret.this[*].arn)]
       }
     }
   })

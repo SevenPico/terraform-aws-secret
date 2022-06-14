@@ -1,9 +1,5 @@
-output "secret_arn" {
+output "arn" {
   value = one(aws_secretsmanager_secret.this[*].arn)
-}
-
-output "secret_id" {
-  value = one(aws_secretsmanager_secret.this[*].id)
 }
 
 output "kms_key_arn" {
@@ -18,3 +14,6 @@ output "kms_key_alias_arn" {
   value = one(aws_kms_alias.this[*].arn)
 }
 
+output "sns_topic_arn" {
+  value = one(aws_sns_topic.secret_update[*].id)
+}
