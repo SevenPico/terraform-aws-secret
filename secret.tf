@@ -48,7 +48,7 @@ data "aws_iam_policy_document" "kms_key_access_policy_doc" {
         for_each = var.secret_read_principals
         content {
           type        = principals.key
-          identifiers = [principals.value]
+          identifiers = principals.value
         }
       }
     }
@@ -98,7 +98,7 @@ data "aws_iam_policy_document" "secret_access_policy_doc" {
         for_each = var.secret_read_principals
         content {
           type        = principals.key
-          identifiers = [principals.value]
+          identifiers = principals.value
         }
       }
     }
