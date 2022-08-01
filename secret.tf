@@ -71,7 +71,7 @@ resource "aws_kms_alias" "this" {
   count = module.secret_kms_key_meta.enabled ? 1 : 0
 
   name          = module.this.id != "" ? format("alias/%v", module.this.id) : null
-  name_prefix   = module.this.id != "" ? null : "alias/${aws_kms_key.key_id}"
+  name_prefix   = module.this.id != "" ? null : "alias/${aws_kms_key.this.key_id}"
   target_key_id = one(aws_kms_key.this[*].id)
 }
 
