@@ -34,7 +34,7 @@ data "aws_iam_policy_document" "sns_policy_doc" {
   policy_id = module.secret_update_sns_meta.id
 
   statement {
-    sid       = "Allow Pub"
+    sid       = "AllowPub"
     effect    = "Allow"
     actions   = ["SNS:Publish"]
     resources = [one(aws_sns_topic.secret_update[*].arn)]
@@ -56,17 +56,17 @@ data "aws_iam_policy_document" "sns_policy_doc" {
     }
   }
 
-  statement {
-    sid       = "Allow Sub"
-    effect    = "Allow"
-    actions   = ["SNS:Subscribe"]
-    resources = [one(aws_sns_topic.secret_update[*].arn)]
+  dynamic "statement" {
+    for_each = var.sns_sub_principals
+    content {
+      sid       = "AllowSub${each.key}"
+      effect    = "Allow"
+      actions   = ["SNS:Subscribe"]
+      resources = [one(aws_sns_topic.secret_update[*].arn)]
 
-    dynamic "principals" {
-      for_each = var.sns_sub_principals
-      content {
-        type        = principals.key
-        identifiers = principals.value
+      principals {
+        type        = statement.key
+        identifiers = statement.value
       }
     }
   }
