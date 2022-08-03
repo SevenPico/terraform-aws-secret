@@ -59,7 +59,6 @@ data "aws_iam_policy_document" "sns_policy_doc" {
   dynamic "statement" {
     for_each = var.sns_sub_principals
     content {
-      sid       = "AllowSub${each.key}"
       effect    = "Allow"
       actions   = ["SNS:Subscribe"]
       resources = [one(aws_sns_topic.secret_update[*].arn)]
