@@ -1,11 +1,21 @@
 variable "secret_string" {
-  type = string
+  type    = string
   default = ""
 }
 
 variable "description" {
-  type = string
+  type    = string
   default = ""
+}
+
+variable "deletion_window_in_days" {
+  type    = number
+  default = 30
+}
+
+variable "enable_key_rotation" {
+  type    = bool
+  default = true
 }
 
 variable "secret_read_principals" {
@@ -14,7 +24,7 @@ variable "secret_read_principals" {
 }
 
 variable "secret_ignore_changes" {
-  type = bool
+  type    = bool
   default = false
 }
 

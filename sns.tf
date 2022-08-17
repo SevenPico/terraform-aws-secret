@@ -1,37 +1,48 @@
 # ------------------------------------------------------------------------------
-#  Secret Update SNS Topic
+#  SNS Contexts
 # ------------------------------------------------------------------------------
-module "secret_update_sns_meta" {
-  source     = "registry.terraform.io/cloudposse/label/null"
-  version    = "0.25.0"
-  context    = module.this.context
-  enabled    = module.this.enabled && var.create_sns
+module "secret_update_sns_context" {
+  source     = "app.terraform.io/SevenPico/context/null"
+  version    = "0.0.1"
+  context    = module.context.context
+  enabled    = module.context.enabled && var.create_sns
   attributes = ["sns"]
 }
 
-resource "aws_sns_topic" "secret_update" {
-  count = module.secret_update_sns_meta.enabled ? 1 : 0
+module "sns_event_context" {
+  source     = "app.terraform.io/SevenPico/context/null"
+  version    = "0.0.1"
+  context    = module.secret_update_sns_context.context
+  attributes = ["event"]
+}
 
-  name                        = module.secret_update_sns_meta.id
-  display_name                = module.secret_update_sns_meta.id
-  tags                        = module.secret_update_sns_meta.tags
-  kms_master_key_id           = one(aws_kms_key[*].this.id)
+
+# ------------------------------------------------------------------------------
+#  Secret Update SNS Topic
+# ------------------------------------------------------------------------------
+resource "aws_sns_topic" "secret_update" {
+  count = module.secret_update_sns_context.enabled ? 1 : 0
+
+  name                        = module.secret_update_sns_context.id
+  display_name                = module.secret_update_sns_context.id
+  tags                        = module.secret_update_sns_context.tags
+  kms_master_key_id           = aws_kms_key.this[0].id
   delivery_policy             = null
   fifo_topic                  = false
   content_based_deduplication = false
 }
 
 resource "aws_sns_topic_policy" "secret_update" {
-  count = module.secret_update_sns_meta.enabled ? 1 : 0
+  count = module.secret_update_sns_context.enabled ? 1 : 0
 
-  arn    = one(aws_sns_topic.secret_update[*].arn)
-  policy = one(data.aws_iam_policy_document.sns_policy_doc[*].json)
+  arn    = aws_sns_topic.secret_update[0].arn
+  policy = data.aws_iam_policy_document.sns_policy_doc[0].json
 }
 
 data "aws_iam_policy_document" "sns_policy_doc" {
-  count = module.secret_update_sns_meta.enabled ? 1 : 0
+  count = module.secret_update_sns_context.enabled ? 1 : 0
 
-  policy_id = module.secret_update_sns_meta.id
+  policy_id = module.secret_update_sns_context.id
 
   statement {
     sid       = "AllowPub"
@@ -75,18 +86,11 @@ data "aws_iam_policy_document" "sns_policy_doc" {
 # ------------------------------------------------------------------------------
 #  Secret Update CloudWatch Event to SNS
 # ------------------------------------------------------------------------------
-module "sns_event_meta" {
-  source     = "registry.terraform.io/cloudposse/label/null"
-  version    = "0.25.0"
-  context    = module.secret_update_sns_meta.context
-  attributes = ["event"]
-}
-
 resource "aws_cloudwatch_event_rule" "secret_update" {
-  count = module.sns_event_meta.enabled ? 1 : 0
+  count = module.sns_event_context.enabled ? 1 : 0
 
   description = "Event on change of secret value"
-  name        = "${module.sns_event_meta.id}-rule"
+  name        = "${module.sns_event_context.id}-rule"
   is_enabled  = true
 
   event_pattern = jsonencode({
@@ -103,7 +107,7 @@ resource "aws_cloudwatch_event_rule" "secret_update" {
 }
 
 resource "aws_cloudwatch_event_target" "secret_update" {
-  count = module.sns_event_meta.enabled ? 1 : 0
+  count = module.sns_event_context.enabled ? 1 : 0
 
   rule      = one(aws_cloudwatch_event_rule.secret_update[*].name)
   arn       = one(aws_sns_topic.secret_update[*].arn)
