@@ -22,7 +22,7 @@
 
 module "context" {
   source  = "app.terraform.io/SevenPico/context/null"
-  version = "0.0.1" # requires Terraform >= 0.13.0
+  version = "0.0.2" # requires Terraform >= 0.13.0
 
   enabled             = var.enabled
   namespace           = var.namespace
@@ -43,7 +43,7 @@ module "context" {
   label_value_case    = var.label_value_case
   descriptor_formats  = var.descriptor_formats
   labels_as_tags      = var.labels_as_tags
-  parent_dns_name     = var.parent_dns_name
+  domain_name         = var.domain_name
 
   context = var.context
 }
@@ -61,7 +61,6 @@ variable "context" {
     environment         = null
     stage               = null
     name                = null
-    parent_dns_name     = null
     delimiter           = null
     attributes          = []
     tags                = {}
@@ -72,6 +71,8 @@ variable "context" {
     label_key_case      = null
     label_value_case    = null
     descriptor_formats  = {}
+    domain_name         = null
+    dns_name_format     = null
     # Note: we have to use [] instead of null for unset lists due to
     # https://github.com/hashicorp/terraform/issues/28137
     # which was not fixed until Terraform 1.0.0,
@@ -294,10 +295,16 @@ variable "descriptor_formats" {
     EOT
 }
 
-variable "parent_dns_name" {
+variable "domain_name" {
   type        = string
   default     = null
-  description = "parent dns name"
+  description = "Route53 Zone domain name."
+}
+
+variable "dns_name_format" {
+  type        = string
+  default     = null
+  description = "Format string for dns_name output.  Default is $${name}.$${domain_name}."
 }
 
 output "context" { value = module.context.context }
