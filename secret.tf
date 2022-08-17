@@ -59,9 +59,9 @@ resource "aws_kms_key" "this" {
   count = module.secret_kms_key_context.enabled ? 1 : 0
 
   customer_master_key_spec = "SYMMETRIC_DEFAULT"
-  deletion_window_in_days  = var.deletion_window_in_days
+  deletion_window_in_days  = var.kms_key_deletion_window_in_days
   description              = "KMS key for ${module.context.id}"
-  enable_key_rotation      = var.enable_key_rotation
+  enable_key_rotation      = var.kms_key_enable_key_rotation
   key_usage                = "ENCRYPT_DECRYPT"
   policy                   = one(data.aws_iam_policy_document.kms_key_access_policy_doc[*].json)
   tags                     = module.secret_kms_key_context.tags
