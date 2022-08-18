@@ -22,7 +22,7 @@
 
 module "context" {
   source  = "app.terraform.io/SevenPico/context/null"
-  version = "1.0.0" # requires Terraform >= 0.13.0
+  version = "1.0.1" # requires Terraform >= 0.13.0
 
   enabled             = var.enabled
   namespace           = var.namespace

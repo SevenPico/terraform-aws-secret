@@ -3,7 +3,7 @@
 # ------------------------------------------------------------------------------
 module "secret_context" {
   source     = "app.terraform.io/SevenPico/context/null"
-  version    = "1.0.0"
+  version    = "1.0.1"
   context    = module.context.context
   enabled    = module.context.enabled
   attributes = ["secret"]
@@ -11,7 +11,7 @@ module "secret_context" {
 
 module "secret_kms_key_context" {
   source     = "app.terraform.io/SevenPico/context/null"
-  version    = "1.0.0"
+  version    = "1.0.1"
   context    = module.secret_context.context
   attributes = ["kms", "key"]
 }
