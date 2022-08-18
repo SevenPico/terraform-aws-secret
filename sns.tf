@@ -26,7 +26,7 @@ resource "aws_sns_topic" "secret_update" {
   name                        = module.secret_update_sns_context.id
   display_name                = module.secret_update_sns_context.id
   tags                        = module.secret_update_sns_context.tags
-  kms_master_key_id           = aws_kms_key.this[0].id
+  kms_master_key_id           = module.kms_key.key_id
   delivery_policy             = null
   fifo_topic                  = false
   content_based_deduplication = false
