@@ -4,6 +4,14 @@ on:
     branches:
       - "**"
 jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+    - name: Validate Terraform configuration
+      uses: devops-infra/action-terraform-validate@v0.3
+
   format:
     runs-on: ubuntu-latest
     steps:
@@ -11,8 +19,8 @@ jobs:
       uses: actions/checkout@v2
     - name: Fail on malformatted files
       uses: devops-infra/action-format-hcl@v0.3
-      with:
-        check: true
+      # with:
+      #   check: true
 
   lint:
     runs-on: ubuntu-latest
@@ -24,10 +32,3 @@ jobs:
       with:
         tflint_config: .tflint.hcl
 
-  validate:
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
-    - name: Validate Terraform configuration
-      uses: devops-infra/action-terraform-validate@v0.3
