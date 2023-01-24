@@ -49,6 +49,11 @@ data "aws_iam_policy_document" "sns_policy_doc" {
     effect    = "Allow"
     actions   = ["SNS:Publish"]
     resources = [one(aws_sns_topic.secret_update[*].arn)]
+    condition {
+        test     = "ForAnyValue:StringLike"
+        values   = ["${var.organization_id}"]
+        variable = "aws:PrincipalOrgId"
+      }
 
     principals {
       type = "Service"
@@ -73,6 +78,12 @@ data "aws_iam_policy_document" "sns_policy_doc" {
       effect    = "Allow"
       actions   = ["SNS:Subscribe"]
       resources = [one(aws_sns_topic.secret_update[*].arn)]
+
+      condition {
+        test     = "ForAnyValue:StringLike"
+        values   = ["${var.organization_id}"]
+        variable = "aws:PrincipalOrgId"
+      }
 
       principals {
         type        = statement.key

@@ -43,6 +43,11 @@ data "aws_iam_policy_document" "kms_key_access_policy_doc" {
       sid       = "Allow secret decrypt"
       actions   = ["kms:Decrypt"]
       resources = ["*"]
+      condition {
+        test     = "ForAnyValue:StringLike"
+        values   = ["${var.organization_id}"]
+        variable = "aws:PrincipalOrgId"
+      }
 
       dynamic "principals" {
         for_each = var.secret_read_principals
@@ -91,6 +96,11 @@ data "aws_iam_policy_document" "secret_access_policy_doc" {
         "secretsmanager:ListSecretVersionIds"
       ]
       resources = ["*"]
+      condition {
+        test     = "ForAnyValue:StringLike"
+        values   = [var.organization_id]
+        variable = "aws:PrincipalOrgId"
+      }
 
       dynamic "principals" {
         for_each = var.secret_read_principals
