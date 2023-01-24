@@ -98,7 +98,7 @@ data "aws_iam_policy_document" "secret_access_policy_doc" {
       resources = ["*"]
       condition {
         test     = "ForAnyValue:StringLike"
-        values   = [var.organization_id]
+        values   = ["${var.organization_id}"]
         variable = "aws:PrincipalOrgId"
       }
 
