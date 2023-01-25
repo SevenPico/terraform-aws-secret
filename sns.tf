@@ -52,10 +52,10 @@ data "aws_iam_policy_document" "sns_policy_doc" {
 
     dynamic "condition" {
       for_each = var.organization_id
-      test     = "ForAnyValue:StringLike"
-      variable = "aws:PrincipalOrgId"
       content {
-        values = [condition.key]
+        test     = "ForAnyValue:StringLike"
+        variable = "aws:PrincipalOrgId"
+        values   = [condition.key]
       }
     }
 
@@ -85,10 +85,10 @@ data "aws_iam_policy_document" "sns_policy_doc" {
 
       dynamic "condition" {
         for_each = var.organization_id
-        test     = "ForAnyValue:StringLike"
-        variable = "aws:PrincipalOrgId"
         content {
-          values = [condition.key]
+          test     = "ForAnyValue:StringLike"
+          variable = "aws:PrincipalOrgId"
+          values   = [condition.key]
         }
       }
 
