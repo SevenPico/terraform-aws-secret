@@ -45,6 +45,6 @@ variable "sns_sub_principals" {
 
 variable "organization_ids" {
   description = "Allow to share the resource with all accounts in an organizational unit "
-  type    = list(string)
-  default = []
+  type        = list(string)
+  default     = []
 }
