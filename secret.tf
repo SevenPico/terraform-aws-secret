@@ -96,10 +96,14 @@ data "aws_iam_policy_document" "secret_access_policy_doc" {
         "secretsmanager:ListSecretVersionIds"
       ]
       resources = ["*"]
-      condition {
+
+      dynamic "condition" {
+        for_each = var.organization_id
         test     = "ForAnyValue:StringLike"
-        values   = ["${var.organization_id}"]
         variable = "aws:PrincipalOrgId"
+        content {
+          values = [condition.key]
+        }
       }
 
       dynamic "principals" {

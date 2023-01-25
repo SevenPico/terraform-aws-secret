@@ -49,11 +49,15 @@ data "aws_iam_policy_document" "sns_policy_doc" {
     effect    = "Allow"
     actions   = ["SNS:Publish"]
     resources = [one(aws_sns_topic.secret_update[*].arn)]
-    condition {
-        test     = "ForAnyValue:StringLike"
-        values   = ["${var.organization_id}"]
-        variable = "aws:PrincipalOrgId"
+
+    dynamic "condition" {
+      for_each = var.organization_id
+      test     = "ForAnyValue:StringLike"
+      variable = "aws:PrincipalOrgId"
+      content {
+        values = [condition.key]
       }
+    }
 
     principals {
       type = "Service"
@@ -79,10 +83,13 @@ data "aws_iam_policy_document" "sns_policy_doc" {
       actions   = ["SNS:Subscribe"]
       resources = [one(aws_sns_topic.secret_update[*].arn)]
 
-      condition {
+      dynamic "condition" {
+        for_each = var.organization_id
         test     = "ForAnyValue:StringLike"
-        values   = ["${var.organization_id}"]
         variable = "aws:PrincipalOrgId"
+        content {
+          values = [condition.key]
+        }
       }
 
       principals {
