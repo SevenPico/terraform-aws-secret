@@ -45,11 +45,11 @@ data "aws_iam_policy_document" "kms_key_access_policy_doc" {
       resources = ["*"]
 
       dynamic "condition" {
-        for_each = var.organization_id
+        for_each = toset(var.organization_ids)
         content {
           test     = "ForAnyValue:StringLike"
           variable = "aws:PrincipalOrgId"
-          values   = condition.key
+          values   = condition.value
         }
       }
 
@@ -102,11 +102,11 @@ data "aws_iam_policy_document" "secret_access_policy_doc" {
       resources = ["*"]
 
       dynamic "condition" {
-        for_each = var.organization_id
+        for_each = toset(var.organization_ids)
         content {
           test     = "ForAnyValue:StringLike"
           variable = "aws:PrincipalOrgId"
-          values   = condition.key
+          values   = condition.value
         }
       }
 

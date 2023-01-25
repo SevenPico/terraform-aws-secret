@@ -43,7 +43,7 @@ variable "sns_sub_principals" {
   default = {}
 }
 
-variable "organization_id" {
-  type    = map(any)
-  default = {}
+variable "organization_ids" {
+  type    = list(string)
+  default = []
 }

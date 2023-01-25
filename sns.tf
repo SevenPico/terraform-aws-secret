@@ -51,11 +51,11 @@ data "aws_iam_policy_document" "sns_policy_doc" {
     resources = [one(aws_sns_topic.secret_update[*].arn)]
 
     dynamic "condition" {
-      for_each = var.organization_id
+      for_each = toset(var.organization_ids)
       content {
         test     = "ForAnyValue:StringLike"
         variable = "aws:PrincipalOrgId"
-        values   = condition.key
+        values   = condition.value
       }
     }
 
@@ -84,11 +84,11 @@ data "aws_iam_policy_document" "sns_policy_doc" {
       resources = [one(aws_sns_topic.secret_update[*].arn)]
 
       dynamic "condition" {
-        for_each = var.organization_id
+        for_each = toset(var.organization_ids)
         content {
           test     = "ForAnyValue:StringLike"
           variable = "aws:PrincipalOrgId"
-          values   = condition.key
+          values   = condition.value
         }
       }
 
