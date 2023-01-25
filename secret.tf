@@ -49,7 +49,7 @@ data "aws_iam_policy_document" "kms_key_access_policy_doc" {
         content {
           test     = "ForAnyValue:StringLike"
           variable = "aws:PrincipalOrgId"
-          values   = [condition.key]
+          values   = condition.key
         }
       }
 
@@ -106,7 +106,7 @@ data "aws_iam_policy_document" "secret_access_policy_doc" {
         content {
           test     = "ForAnyValue:StringLike"
           variable = "aws:PrincipalOrgId"
-          values   = [condition.key]
+          values   = condition.key
         }
       }
 

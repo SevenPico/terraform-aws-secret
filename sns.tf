@@ -55,7 +55,7 @@ data "aws_iam_policy_document" "sns_policy_doc" {
       content {
         test     = "ForAnyValue:StringLike"
         variable = "aws:PrincipalOrgId"
-        values   = [condition.key]
+        values   = condition.key
       }
     }
 
@@ -88,7 +88,7 @@ data "aws_iam_policy_document" "sns_policy_doc" {
         content {
           test     = "ForAnyValue:StringLike"
           variable = "aws:PrincipalOrgId"
-          values   = [condition.key]
+          values   = condition.key
         }
       }
 
