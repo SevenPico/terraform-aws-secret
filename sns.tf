@@ -1,19 +1,9 @@
 # ------------------------------------------------------------------------------
-#  SNS Contexts
+# KMS Key
 # ------------------------------------------------------------------------------
-module "secret_update_sns_context" {
-  source     = "app.terraform.io/SevenPico/context/null"
-  version    = "1.0.1"
-  context    = module.context.context
-  enabled    = module.context.enabled && var.create_sns
-  attributes = ["sns"]
-}
-
-module "sns_event_context" {
-  source     = "app.terraform.io/SevenPico/context/null"
-  version    = "1.0.1"
-  context    = module.secret_update_sns_context.context
-  attributes = ["event"]
+data "context" "sns" {
+  context = data.context.this
+  enabled = var.sns_enabled
 }
 
 
@@ -21,28 +11,28 @@ module "sns_event_context" {
 #  Secret Update SNS Topic
 # ------------------------------------------------------------------------------
 resource "aws_sns_topic" "secret_update" {
-  count = module.secret_update_sns_context.enabled ? 1 : 0
+  count = data.context.sns.enabled ? 1 : 0
 
-  name                        = module.secret_update_sns_context.id
-  display_name                = module.secret_update_sns_context.id
-  tags                        = module.secret_update_sns_context.tags
-  kms_master_key_id           = module.kms_key.key_id
+  name                        = data.context.sns.id
+  display_name                = data.context.sns.id
+  tags                        = data.context.sns.tags
+  kms_master_key_id           = data.context.kms.enabled ? aws_kms_key.this[0].key_id : null
   delivery_policy             = null
   fifo_topic                  = false
   content_based_deduplication = false
 }
 
 resource "aws_sns_topic_policy" "secret_update" {
-  count = module.secret_update_sns_context.enabled ? 1 : 0
+  count = data.context.sns.enabled ? 1 : 0
 
   arn    = aws_sns_topic.secret_update[0].arn
   policy = data.aws_iam_policy_document.sns_policy_doc[0].json
 }
 
 data "aws_iam_policy_document" "sns_policy_doc" {
-  count = module.secret_update_sns_context.enabled ? 1 : 0
+  count = data.context.sns.enabled ? 1 : 0
 
-  policy_id = module.secret_update_sns_context.id
+  policy_id = data.context.sns.id
 
   statement {
     sid       = "AllowPub"
@@ -87,10 +77,10 @@ data "aws_iam_policy_document" "sns_policy_doc" {
 #  Secret Update CloudWatch Event to SNS
 # ------------------------------------------------------------------------------
 resource "aws_cloudwatch_event_rule" "secret_update" {
-  count = module.sns_event_context.enabled ? 1 : 0
+  count = data.context.sns.enabled ? 1 : 0
 
   description = "Event on change of secret value"
-  name        = "${module.sns_event_context.id}-rule"
+  name        = "${data.context.sns.id}-rule"
   is_enabled  = true
 
   event_pattern = jsonencode({
@@ -100,14 +90,14 @@ resource "aws_cloudwatch_event_rule" "secret_update" {
       eventSource = ["secretsmanager.amazonaws.com"],
       eventName   = ["PutSecretValue", "UpdateSecret", "UpdateSecretVersionStage"]
       requestParameters = {
-        secretId = [one(aws_secretsmanager_secret.this[*].arn)]
+        secretId = [aws_secretsmanager_secret.this[0].arn]
       }
     }
   })
 }
 
 resource "aws_cloudwatch_event_target" "secret_update" {
-  count = module.sns_event_context.enabled ? 1 : 0
+  count = data.context.sns.enabled ? 1 : 0
 
   rule      = one(aws_cloudwatch_event_rule.secret_update[*].name)
   arn       = one(aws_sns_topic.secret_update[*].arn)
