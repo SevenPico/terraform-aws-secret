@@ -3,21 +3,18 @@
 # ------------------------------------------------------------------------------
 module "secret_context" {
   source     = "app.terraform.io/SevenPico/context/null"
-  version    = "1.0.1"
-  context    = module.context.context
+  version    = "1.1.0"
+  context    = module.context.self
   enabled    = module.context.enabled
   attributes = ["secret"]
 }
 
 module "secret_kms_key_context" {
   source     = "app.terraform.io/SevenPico/context/null"
-  version    = "1.0.1"
-  context    = module.secret_context.context
+  version    = "1.1.0"
+  context    = module.secret_context.self
   attributes = ["kms", "key"]
 }
-
-data "aws_caller_identity" "current" {}
-
 
 # ------------------------------------------------------------------------------
 # KMS Key IAM

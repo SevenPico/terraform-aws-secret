@@ -3,16 +3,16 @@
 # ------------------------------------------------------------------------------
 module "secret_update_sns_context" {
   source     = "app.terraform.io/SevenPico/context/null"
-  version    = "1.0.1"
-  context    = module.context.context
+  version    = "1.1.0"
+  context    = module.context.self
   enabled    = module.context.enabled && var.create_sns
   attributes = ["sns"]
 }
 
 module "sns_event_context" {
   source     = "app.terraform.io/SevenPico/context/null"
-  version    = "1.0.1"
-  context    = module.secret_update_sns_context.context
+  version    = "1.1.0"
+  context    = module.secret_update_sns_context.self
   attributes = ["event"]
 }
 
