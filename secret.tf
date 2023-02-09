@@ -1,98 +1,132 @@
 # ------------------------------------------------------------------------------
-# Secret
+# Secret Contexts
 # ------------------------------------------------------------------------------
-resource "aws_secretsmanager_secret" "this" {
-  count = data.context.this.enabled ? 1 : 0
-
-  name_prefix             = "${data.context.this.name}${data.context.this.descriptors.name.delimiter}"
-  tags                    = data.context.this.tags
-  name                    = null
-  description             = var.description
-  kms_key_id              = data.context.kms.enabled ? aws_kms_key.this[0].key_id : null
-  policy                  = null # managed with aws_secretsmanager_secret_policy resource
-  recovery_window_in_days = var.recovery_window_in_days
-
-  # TODO
-  # replica {}
-  # force_overwrite_replica_secret = true
+module "secret_context" {
+  source     = "app.terraform.io/SevenPico/context/null"
+  version    = "1.0.1"
+  context    = module.context.context
+  enabled    = module.context.enabled
+  attributes = ["secret"]
 }
 
-resource "aws_secretsmanager_secret_version" "default" {
-  count = data.context.this.enabled && !var.ignore_secret_changes ? 1 : 0
+module "secret_kms_key_context" {
+  source     = "app.terraform.io/SevenPico/context/null"
+  version    = "1.0.1"
+  context    = module.secret_context.context
+  attributes = ["kms", "key"]
+}
 
-  secret_id     = aws_secretsmanager_secret.this[0].id
-  secret_string = var.secret_string
+data "aws_caller_identity" "current" {}
 
-  lifecycle {
-    ignore_changes = [secret_string, secret_binary]
+
+# ------------------------------------------------------------------------------
+# KMS Key IAM
+# ------------------------------------------------------------------------------
+data "aws_iam_policy_document" "kms_key_access_policy_doc" {
+  count = module.context.enabled && length(var.secret_read_principals) == 0 ? 0 : 1
+
+  statement {
+    effect    = "Allow"
+    actions   = ["kms:*"]
+    resources = ["*"]
+
+    principals {
+      type        = "AWS"
+      identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"]
+    }
+  }
+
+  dynamic "statement" {
+    for_each = length(var.secret_read_principals) == 0 ? [] : [1]
+    content {
+      effect    = "Allow"
+      sid       = "Allow secret decrypt"
+      actions   = ["kms:Decrypt"]
+      resources = ["*"]
+
+      dynamic "principals" {
+        for_each = var.secret_read_principals
+        content {
+          type        = principals.key
+          identifiers = principals.value
+        }
+      }
+    }
   }
 }
 
-resource "aws_secretsmanager_secret_version" "no_ignore_changes" {
-  count = data.context.this.enabled && var.ignore_secret_changes ? 1 : 0
 
-  secret_id     = aws_secretsmanager_secret.this[0].id
-  secret_string = var.secret_string
+# ------------------------------------------------------------------------------
+# KMS Key
+# ------------------------------------------------------------------------------
+module "kms_key" {
+  source  = "app.terraform.io/SevenPico/kms-key/aws"
+  version = "0.12.1.1"
+  context = module.secret_kms_key_context.self
+
+  customer_master_key_spec = "SYMMETRIC_DEFAULT"
+  deletion_window_in_days  = var.kms_key_deletion_window_in_days
+  description              = "KMS key for ${module.context.id}"
+  enable_key_rotation      = var.kms_key_enable_key_rotation
+  key_usage                = "ENCRYPT_DECRYPT"
+  multi_region             = false
+  policy                   = join("", data.aws_iam_policy_document.kms_key_access_policy_doc[*].json)
 }
 
 
 # ------------------------------------------------------------------------------
-# Secret Policy
+# Secret
 # ------------------------------------------------------------------------------
-resource "aws_secretsmanager_secret_policy" "this" {
-  count = data.context.this.enabled ? 1 : 0
+data "aws_iam_policy_document" "secret_access_policy_doc" {
+  count = module.context.enabled && length(var.secret_read_principals) == 0 ? 0 : 1
 
-  secret_arn          = aws_secretsmanager_secret.this[0].arn
-  block_public_policy = true
-  policy              = module.secret_policy.json
-}
-
-module "secret_policy" {
-  source  = "app.terraform.io/SevenPico/iam/aws//modules/policy"
-  version = "0.0.4"
-  context = data.context.this
-
-  description                   = null
-  iam_override_policy_documents = null
-  iam_policy_enabled            = false
-  iam_policy_id                 = null
-  iam_source_json_url           = null
-  iam_source_policy_documents   = null
-  iam_policy_statements = merge({
-    default = {
-      effect    = "Allow"
-      resources = ["*"]
-      principals = concat([{
-        type        = "AWS"
-        identifiers = [data.aws_caller_identity.current.account_id]
-        }],
-        [
-          for pk, pv in var.secret_read_principals : {
-            type        = pk
-            identifiers = pv
-          }
-      ])
+  dynamic "statement" {
+    for_each = length(var.secret_read_principals) == 0 ? [] : [1]
+    content {
+      effect = "Allow"
       actions = [
         "secretsmanager:GetResourcePolicy",
         "secretsmanager:GetSecretValue",
         "secretsmanager:DescribeSecret",
         "secretsmanager:ListSecretVersionIds"
       ]
-      conditions = []
+      resources = ["*"]
+
+      dynamic "principals" {
+        for_each = var.secret_read_principals
+        content {
+          type        = principals.key
+          identifiers = principals.value
+        }
+      }
     }
-  }, var.policy_statements)
+  }
 }
 
+resource "aws_secretsmanager_secret" "this" {
+  count = module.secret_context.enabled ? 1 : 0
 
-# ------------------------------------------------------------------------------
-# Secret Rotation
-# ------------------------------------------------------------------------------
-# TODO
-# resource "aws_secretsmanager_secret_rotation" "this" {
-#   secret_id           = aws_secretsmanager_secret.this.id
-#   rotation_lambda_arn = aws_lambda_function.rotation.arn
+  description = var.description
+  kms_key_id  = module.kms_key.key_id
+  name_prefix = "${module.secret_context.id}-"
+  policy      = one(data.aws_iam_policy_document.secret_access_policy_doc[*].json)
+  tags        = module.secret_context.tags
+}
 
-#   rotation_rules {
-#     automatically_after_days = var.rotation_period_in_days
-#   }
-# }
+resource "aws_secretsmanager_secret_version" "default" {
+  count = (module.secret_context.enabled && !var.secret_ignore_changes) ? 1 : 0
+
+  secret_id     = one(aws_secretsmanager_secret.this[*].id)
+  secret_string = var.secret_string
+}
+
+resource "aws_secretsmanager_secret_version" "ignore_changes" {
+  count = (module.secret_context.enabled && var.secret_ignore_changes) ? 1 : 0
+
+  secret_id     = one(aws_secretsmanager_secret.this[*].id)
+  secret_string = var.secret_string
+
+  lifecycle {
+    ignore_changes = [secret_string, secret_binary]
+  }
+}

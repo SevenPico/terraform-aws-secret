@@ -1,15 +1,19 @@
 output "arn" {
-  value = try(aws_secretsmanager_secret.this[0].arn, "")
+  value = one(aws_secretsmanager_secret.this[*].arn)
 }
 
 output "kms_key_arn" {
-  value = try(aws_kms_alias.this[0].target_key_arn, "")
+  value = module.kms_key.key_arn
+}
+
+output "kms_key_alias_name" {
+  value = module.kms_key.alias_name
 }
 
 output "kms_key_alias_arn" {
-  value = try(aws_kms_alias.this[0].arn, "")
+  value = module.kms_key.alias_arn
 }
 
-# output "sns_topic_arn" {
-#   value = try(aws_sns_topic.secret_update[0].id, "")
-# }
+output "sns_topic_arn" {
+  value = one(aws_sns_topic.secret_update[*].id)
+}
