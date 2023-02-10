@@ -23,7 +23,7 @@
 #  SNS Contexts
 # ------------------------------------------------------------------------------
 module "secret_update_sns_context" {
-  source     = "app.terraform.io/SevenPico/context/null"
+  source     = "SevenPico/context/null"
   version    = "1.1.0"
   context    = module.context.self
   enabled    = module.context.enabled && var.create_sns
@@ -31,7 +31,7 @@ module "secret_update_sns_context" {
 }
 
 module "sns_event_context" {
-  source     = "app.terraform.io/SevenPico/context/null"
+  source     = "SevenPico/context/null"
   version    = "1.1.0"
   context    = module.secret_update_sns_context.self
   attributes = ["event"]

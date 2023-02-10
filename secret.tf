@@ -23,16 +23,16 @@
 # Secret Contexts
 # ------------------------------------------------------------------------------
 module "secret_context" {
-  source     = "app.terraform.io/SevenPico/context/null"
-  version    = "1.1.0"
+  source     = "SevenPico/context/null"
+  version    = "2.0.0"
   context    = module.context.self
   enabled    = module.context.enabled
   attributes = ["secret"]
 }
 
 module "secret_kms_key_context" {
-  source     = "app.terraform.io/SevenPico/context/null"
-  version    = "1.1.0"
+  source     = "SevenPico/context/null"
+  version    = "2.0.0"
   context    = module.secret_context.self
   attributes = ["kms", "key"]
 }
@@ -78,8 +78,8 @@ data "aws_iam_policy_document" "kms_key_access_policy_doc" {
 # KMS Key
 # ------------------------------------------------------------------------------
 module "kms_key" {
-  source  = "app.terraform.io/SevenPico/kms-key/aws"
-  version = "0.12.1.1"
+  source  = "SevenPicoForks/kms-key/aws"
+  version = "2.0.0"
   context = module.secret_kms_key_context.self
 
   customer_master_key_spec = "SYMMETRIC_DEFAULT"
