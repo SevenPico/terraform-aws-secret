@@ -1,3 +1,15 @@
+locals {
+  sns_sub_principals = {for k,p in var.sns_sub_principals : k=>p if try(p.condition.test, null) == null }
+  sns_sub_principals_with_condition = {for k,p in var.sns_sub_principals : k=>p if try(p.condition.test, null) != null }
+
+  sns_pub_principals = {for k,p in var.sns_pub_principals : k=>p if try(p.condition.test, null) == null }
+  sns_pub_principals_with_condition = {for k,p in var.sns_pub_principals : k=>p if try(p.condition.test, null) != null }
+
+  secret_read_principals = {for k,p in var.secret_read_principals : k=>p if try(p.condition.test, null) == null }
+  secret_read_principals_with_condition = {for k,p in var.secret_read_principals : k=>p if try(p.condition.test, null) != null }
+}
+
+
 # ------------------------------------------------------------------------------
 # Secret Meta
 # ------------------------------------------------------------------------------
@@ -29,6 +41,7 @@ data "aws_iam_policy_document" "kms_key_access_policy_doc" {
     effect    = "Allow"
     actions   = ["kms:*"]
     resources = ["*"]
+    sid = "AllowRoot"
 
     principals {
       type        = "AWS"
@@ -37,19 +50,38 @@ data "aws_iam_policy_document" "kms_key_access_policy_doc" {
   }
 
   dynamic "statement" {
-    for_each = length(var.secret_read_principals) == 0 ? [] : [1]
+    for_each = length(local.secret_read_principals) == 0 ? [] : [1]
     content {
       effect    = "Allow"
-      sid = "Allow secret decrypt"
+      sid = "AllowDecrypt"
       actions   = ["kms:Decrypt"]
       resources = ["*"]
 
       dynamic "principals" {
-        for_each = var.secret_read_principals
+        for_each = local.sns_pub_principals
         content {
-          type        = principals.key
-          identifiers = principals.value
+          type        = principals.value.type
+          identifiers = principals.value.identifiers
         }
+      }
+    }
+  }
+  dynamic "statement" {
+    for_each = local.secret_read_principals_with_condition
+    content {
+      sid       = statement.key
+      effect    = "Allow"
+      actions   = ["kms:Decrypt"]
+      resources = ["*"]
+
+      principals {
+        type        = statement.value.type
+        identifiers = statement.value.identifiers
+      }
+      condition {
+        test     = statement.value.condition.test
+        values   = statement.value.condition.values
+        variable = statement.value.condition.variable
       }
     }
   }
@@ -83,8 +115,9 @@ data "aws_iam_policy_document" "secret_access_policy_doc" {
   count = module.this.enabled && length(var.secret_read_principals) == 0 ? 0 : 1
 
   dynamic "statement" {
-    for_each = length(var.secret_read_principals) == 0 ? [] : [1]
+    for_each = length(local.secret_read_principals) == 0 ? [] : [1]
     content {
+      sid = "AllowRead"
       effect = "Allow"
       actions = [
         "secretsmanager:GetResourcePolicy",
@@ -95,11 +128,36 @@ data "aws_iam_policy_document" "secret_access_policy_doc" {
       resources = ["*"]
 
       dynamic "principals" {
-        for_each = var.secret_read_principals
+        for_each = local.secret_read_principals
         content {
-          type        = principals.key
-          identifiers = principals.value
+          type        = principals.value.type
+          identifiers = principals.value.identifiers
         }
+      }
+    }
+  }
+
+  dynamic "statement" {
+    for_each = local.secret_read_principals_with_condition
+    content {
+      sid    = statement.key
+      effect = "Allow"
+      actions = [
+        "secretsmanager:GetResourcePolicy",
+        "secretsmanager:GetSecretValue",
+        "secretsmanager:DescribeSecret",
+        "secretsmanager:ListSecretVersionIds"
+      ]
+      resources = ["*"]
+
+      principals {
+          type        = statement.value.type
+          identifiers = statement.value.identifiers
+      }
+      condition {
+        test     = statement.value.condition.test
+        values   = statement.value.condition.values
+        variable = statement.value.condition.variable
       }
     }
   }
