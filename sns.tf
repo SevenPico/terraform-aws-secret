@@ -111,6 +111,7 @@ data "aws_iam_policy_document" "sns_policy_doc" {
   dynamic "statement" {
     for_each = local.sns_sub_principals
     content {
+      sid       = statement.key
       effect    = "Allow"
       actions   = ["SNS:Subscribe"]
       resources = [one(aws_sns_topic.secret_update[*].arn)]
@@ -157,9 +158,9 @@ resource "aws_cloudwatch_event_rule" "secret_update" {
   event_pattern = jsonencode({
     source      = ["aws.secretsmanager"]
     detail-type = ["AWS API Call via CloudTrail"]
-    detail = {
-      eventSource = ["secretsmanager.amazonaws.com"],
-      eventName   = ["PutSecretValue", "UpdateSecret", "UpdateSecretVersionStage"]
+    detail      = {
+      eventSource       = ["secretsmanager.amazonaws.com"],
+      eventName         = ["PutSecretValue", "UpdateSecret", "UpdateSecretVersionStage"]
       requestParameters = {
         secretId = [one(aws_secretsmanager_secret.this[*].arn)]
       }
