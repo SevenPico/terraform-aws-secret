@@ -18,12 +18,6 @@
 ##  ./_variables.tf
 ##  This file contains code written by SevenPico, Inc.
 ## ----------------------------------------------------------------------------
-
-variable "secret_string" {
-  type    = string
-  default = ""
-}
-
 variable "description" {
   type    = string
   default = ""

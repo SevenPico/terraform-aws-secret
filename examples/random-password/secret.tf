@@ -15,30 +15,45 @@
 ## ----------------------------------------------------------------------------
 
 ## ----------------------------------------------------------------------------
-##  ./_outputs.tf
+##  ./examples/complete/secret.tf
 ##  This file contains code written by SevenPico, Inc.
 ## ----------------------------------------------------------------------------
 
-output "arn" {
-  value = join("", aws_secretsmanager_secret.this.*.arn)
+module "secret" {
+  source = "../../modules/random-password"
+  context = module.context.self
+
+  password_length = 15
+
+  description            = "Example Password"
+  secret_ignore_changes  = true
+  create_sns             = false
+  additional_secrets = {
+    USERNAME="admin"
+  }
+  secret_read_principals = {}
+  sns_pub_principals = {}
+  sns_sub_principals = {}
 }
 
-output "id" {
-  value = join("", aws_secretsmanager_secret.this.*.id)
+
+# Now security reference the value of the password
+data "aws_secretsmanager_secret_version" "password" {
+  version_stage = "AWSCURRENT"
+  secret_id = module.secret.id
+}
+locals {
+  password_secret = jsondecode(
+    data.aws_secretsmanager_secret_version.password.secret_string
+  )
 }
 
-output "kms_key_arn" {
-  value = module.kms_key.key_arn
+output "username" {
+  value = local.password_secret.USERNAME
+  sensitive = true
 }
 
-output "kms_key_alias_name" {
-  value = module.kms_key.alias_name
-}
-
-output "kms_key_alias_arn" {
-  value = module.kms_key.alias_arn
-}
-
-output "sns_topic_arn" {
-  value = one(aws_sns_topic.secret_update[*].id)
+output "password" {
+  value = local.password_secret.PASSWORD
+  sensitive = true
 }

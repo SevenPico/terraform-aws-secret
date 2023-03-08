@@ -20,25 +20,25 @@
 ## ----------------------------------------------------------------------------
 
 output "arn" {
-  value = join("", aws_secretsmanager_secret.this.*.arn)
+  value = module.secret.arn
 }
 
 output "id" {
-  value = join("", aws_secretsmanager_secret.this.*.id)
+  value = module.secret.id
 }
 
 output "kms_key_arn" {
-  value = module.kms_key.key_arn
+  value = module.secret.kms_key_arn
 }
 
 output "kms_key_alias_name" {
-  value = module.kms_key.alias_name
+  value = module.secret.kms_key_alias_name
 }
 
 output "kms_key_alias_arn" {
-  value = module.kms_key.alias_arn
+  value = module.secret.kms_key_alias_arn
 }
 
 output "sns_topic_arn" {
-  value = one(aws_sns_topic.secret_update[*].id)
+  value = module.secret.sns_topic_arn
 }

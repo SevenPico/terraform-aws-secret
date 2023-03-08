@@ -72,7 +72,7 @@ data "aws_iam_policy_document" "sns_policy_doc" {
     resources = [one(aws_sns_topic.secret_update[*].arn)]
 
     principals {
-      type = "Service"
+      type        = "Service"
       identifiers = [
         "cloudwatch.amazonaws.com",
         "events.amazonaws.com"
@@ -80,24 +80,64 @@ data "aws_iam_policy_document" "sns_policy_doc" {
     }
 
     dynamic "principals" {
-      for_each = var.sns_pub_principals
+      for_each = local.sns_pub_principals
       content {
-        type        = principals.key
-        identifiers = principals.value
+        type        = principals.value.type
+        identifiers = principals.value.identifiers
       }
     }
   }
 
   dynamic "statement" {
-    for_each = var.sns_sub_principals
+    for_each = local.sns_pub_principals_with_condition
+    content {
+      sid       = statement.key
+      effect    = "Allow"
+      actions   = ["SNS:Publish"]
+      resources = [one(aws_sns_topic.secret_update[*].arn)]
+
+      principals {
+        type        = statement.value.type
+        identifiers = statement.value.identifiers
+      }
+      condition {
+        test     = statement.value.condition.test
+        values   = statement.value.condition.values
+        variable = statement.value.condition.variable
+      }
+    }
+  }
+
+  dynamic "statement" {
+    for_each = local.sns_sub_principals
     content {
       effect    = "Allow"
       actions   = ["SNS:Subscribe"]
       resources = [one(aws_sns_topic.secret_update[*].arn)]
 
       principals {
-        type        = statement.key
-        identifiers = statement.value
+        type        = statement.value.type
+        identifiers = statement.value.identifiers
+      }
+    }
+  }
+
+  dynamic "statement" {
+    for_each = local.sns_sub_principals_with_condition
+    content {
+      sid       = statement.key
+      effect    = "Allow"
+      actions   = ["SNS:Subscribe"]
+      resources = [one(aws_sns_topic.secret_update[*].arn)]
+
+      principals {
+        type        = statement.value.type
+        identifiers = statement.value.identifiers
+      }
+      condition {
+        test     = statement.value.condition.test
+        values   = statement.value.condition.values
+        variable = statement.value.condition.variable
       }
     }
   }

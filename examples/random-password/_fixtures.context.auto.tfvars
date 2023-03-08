@@ -15,30 +15,28 @@
 ## ----------------------------------------------------------------------------
 
 ## ----------------------------------------------------------------------------
-##  ./_outputs.tf
+##  ./examples/letsencrypt/_fixtures.context.auto.tfvars
 ##  This file contains code written by SevenPico, Inc.
 ## ----------------------------------------------------------------------------
 
-output "arn" {
-  value = join("", aws_secretsmanager_secret.this.*.arn)
-}
-
-output "id" {
-  value = join("", aws_secretsmanager_secret.this.*.id)
-}
-
-output "kms_key_arn" {
-  value = module.kms_key.key_arn
-}
-
-output "kms_key_alias_name" {
-  value = module.kms_key.alias_name
-}
-
-output "kms_key_alias_arn" {
-  value = module.kms_key.alias_arn
-}
-
-output "sns_topic_arn" {
-  value = one(aws_sns_topic.secret_update[*].id)
-}
+enabled   = true
+namespace = "sp"
+#tenant              =
+#project             =
+#region              =
+environment = "secret"
+#stage               =
+name = "random-password"
+#delimiter           =
+#attributes          =
+#tags                =
+#additional_tag_map  =
+#label_order         =
+#regex_replace_chars =
+#id_length_limit     =
+#label_key_case      =
+#label_value_case    =
+#descriptor_formats  =
+#labels_as_tags      =
+dns_name_format = "$${name}.$${domain_name}"
+domain_name = "secret-rp.7pi.io"
