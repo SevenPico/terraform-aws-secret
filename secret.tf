@@ -93,10 +93,11 @@ resource "aws_kms_key" "this" {
   customer_master_key_spec = "SYMMETRIC_DEFAULT"
   deletion_window_in_days  = 30
   description              = "KMS key for ${module.this.id}"
-  enable_key_rotation      = var.kms_key_multi_region
+  enable_key_rotation      = false
   key_usage                = "ENCRYPT_DECRYPT"
   policy                   = one(data.aws_iam_policy_document.kms_key_access_policy_doc[*].json)
   tags                     = module.secret_kms_key_meta.tags
+  multi_region             = var.kms_key_multi_region
 }
 
 resource "aws_kms_alias" "this" {
