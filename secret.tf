@@ -121,7 +121,7 @@ module "kms_key" {
   enable_key_rotation      = var.kms_key_enable_key_rotation
   key_usage                = "ENCRYPT_DECRYPT"
   multi_region             = var.kms_key_multi_region
-  policy                   = join("", data.aws_iam_policy_document.kms_key_access_policy_doc[*].json)
+  policy                   = join("", data.aws_iam_policy_document.kms_key_access_policy_doc[0].json)
 }
 
 
@@ -186,7 +186,7 @@ resource "aws_secretsmanager_secret" "this" {
   description = var.description
   kms_key_id  = module.kms_key.key_id
   name_prefix = "${module.secret_context.id}-"
-  policy      = one(data.aws_iam_policy_document.secret_access_policy_doc[*].json)
+  policy      = one(data.aws_iam_policy_document.secret_access_policy_doc[0].json)
   tags        = module.secret_context.tags
 }
 
