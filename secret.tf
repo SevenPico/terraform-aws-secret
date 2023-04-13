@@ -121,7 +121,7 @@ module "kms_key" {
   enable_key_rotation      = var.kms_key_enable_key_rotation
   key_usage                = "ENCRYPT_DECRYPT"
   multi_region             = var.kms_key_multi_region
-  policy                   = join("", data.aws_iam_policy_document.kms_key_access_policy_doc[0].json)
+  policy                   = try(data.aws_iam_policy_document.kms_key_access_policy_doc[0].json, "")
 }
 
 
