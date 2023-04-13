@@ -54,7 +54,8 @@ module "secret_kms_key_context" {
 # KMS Key IAM
 # ------------------------------------------------------------------------------
 data "aws_iam_policy_document" "kms_key_access_policy_doc" {
-  count = module.context.enabled && length(var.secret_read_principals) == 0 ? 0 : 1
+  #count = module.context.enabled && length(var.secret_read_principals) == 0 ? 0 : 1
+  count = module.context.enabled && length(var.secret_read_principals) == 0 ? 1 : 0
 
   statement {
     effect    = "Allow"
@@ -129,7 +130,8 @@ module "kms_key" {
 # Secret
 # ------------------------------------------------------------------------------
 data "aws_iam_policy_document" "secret_access_policy_doc" {
-  count = module.context.enabled && length(var.secret_read_principals) == 0 ? 0 : 1
+  #count = module.context.enabled && length(var.secret_read_principals) == 0 ? 0 : 1
+  count = module.context.enabled && length(var.secret_read_principals) == 0 ? 1 : 0
 
   dynamic "statement" {
     for_each = length(local.secret_read_principals) == 0 ? [] : [1]
