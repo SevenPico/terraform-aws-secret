@@ -186,7 +186,7 @@ resource "aws_secretsmanager_secret" "this" {
   description = var.description
   kms_key_id  = module.kms_key.key_id
   name_prefix = "${module.secret_context.id}-"
-  policy      = one(data.aws_iam_policy_document.secret_access_policy_doc[0].json)
+  policy      = one(data.aws_iam_policy_document.secret_access_policy_doc[*].json)
   tags        = module.secret_context.tags
 }
 
