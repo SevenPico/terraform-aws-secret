@@ -18,17 +18,9 @@
 ##  ./examples/complete/secret.tf
 ##  This file contains code written by SevenPico, Inc.
 ## ----------------------------------------------------------------------------
-
-provider "aws" {
-  region = "us-east-1"
-}
-
-data "aws_caller_identity" "current" {}
-
 module "secret" {
   source = "../.."
-
-  name = "example-secret"
+  context = module.context.self
 
   description            = "Example secret"
   secret_ignore_changes  = true
@@ -37,7 +29,7 @@ module "secret" {
     AllowRootRead = {
       type        = "AWS"
       identifiers = [
-        data.aws_caller_identity.current.account_id
+        try(data.aws_caller_identity.current[0].account_id, "")
       ]
       condition = {
         test   = null
@@ -81,7 +73,7 @@ module "secret" {
     AllowRootPub = {
       type        = "AWS"
       identifiers = [
-        data.aws_caller_identity.current.account_id
+        try(data.aws_caller_identity.current[0].account_id, "")
       ]
       condition = {
         test   = null
@@ -104,7 +96,7 @@ module "secret" {
     AllowRootSub = {
       type        = "AWS"
       identifiers = [
-        data.aws_caller_identity.current.account_id
+        try(data.aws_caller_identity.current[0].account_id, "")
       ]
       condition = {
         test   = null
