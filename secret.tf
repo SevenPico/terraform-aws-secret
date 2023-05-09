@@ -68,6 +68,18 @@ data "aws_iam_policy_document" "kms_key_access_policy_doc" {
     }
   }
 
+  statement {
+    effect    = "Allow"
+    actions   = ["kms:Decrypt","kms:GenerateDataKey"]
+    resources = ["*"]
+    sid = "AllowEventRule"
+
+    principals {
+      type        = "Service"
+      identifiers = ["events.amazonaws.com"]
+    }
+  }
+
   dynamic "statement" {
     for_each = length(local.secret_read_principals) == 0 ? [] : [1]
     content {
@@ -85,6 +97,7 @@ data "aws_iam_policy_document" "kms_key_access_policy_doc" {
       }
     }
   }
+
   dynamic "statement" {
     for_each = local.secret_read_principals_with_condition
     content {
