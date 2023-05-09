@@ -24,7 +24,7 @@
 # ------------------------------------------------------------------------------
 module "secret_update_sns_context" {
   source     = "SevenPico/context/null"
-  version    = "1.1.0"
+  version    = "2.0.0"
   context    = module.context.self
   enabled    = module.context.enabled && var.create_sns
   attributes = ["sns"]
@@ -32,7 +32,7 @@ module "secret_update_sns_context" {
 
 module "sns_event_context" {
   source     = "SevenPico/context/null"
-  version    = "1.1.0"
+  version    = "2.0.0"
   context    = module.secret_update_sns_context.self
   attributes = ["event"]
 }
