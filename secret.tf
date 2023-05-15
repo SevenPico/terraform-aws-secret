@@ -77,7 +77,7 @@ data "aws_iam_policy_document" "kms_key_access_policy_doc" {
       resources = ["*"]
 
       dynamic "principals" {
-        for_each = local.sns_pub_principals
+        for_each = local.secret_read_principals
         content {
           type        = principals.value.type
           identifiers = principals.value.identifiers
