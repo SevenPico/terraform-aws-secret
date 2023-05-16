@@ -21,14 +21,14 @@
 
 
 locals {
-  sns_sub_principals = {for k,p in var.sns_sub_principals : k=>p if try(p.condition.test, null) == null }
-  sns_sub_principals_with_condition = {for k,p in var.sns_sub_principals : k=>p if try(p.condition.test, null) != null }
+  sns_sub_principals                = { for k, p in var.sns_sub_principals : k => p if try(p.condition.test, null) == null }
+  sns_sub_principals_with_condition = { for k, p in var.sns_sub_principals : k => p if try(p.condition.test, null) != null }
 
-  sns_pub_principals = {for k,p in var.sns_pub_principals : k=>p if try(p.condition.test, null) == null }
-  sns_pub_principals_with_condition = {for k,p in var.sns_pub_principals : k=>p if try(p.condition.test, null) != null }
+  sns_pub_principals                = { for k, p in var.sns_pub_principals : k => p if try(p.condition.test, null) == null }
+  sns_pub_principals_with_condition = { for k, p in var.sns_pub_principals : k => p if try(p.condition.test, null) != null }
 
-  secret_read_principals = {for k,p in var.secret_read_principals : k=>p if try(p.condition.test, null) == null }
-  secret_read_principals_with_condition = {for k,p in var.secret_read_principals : k=>p if try(p.condition.test, null) != null }
+  secret_read_principals                = { for k, p in var.secret_read_principals : k => p if try(p.condition.test, null) == null }
+  secret_read_principals_with_condition = { for k, p in var.secret_read_principals : k => p if try(p.condition.test, null) != null }
 }
 
 
@@ -60,7 +60,7 @@ data "aws_iam_policy_document" "kms_key_access_policy_doc" {
     effect    = "Allow"
     actions   = ["kms:*"]
     resources = ["*"]
-    sid = "AllowRoot"
+    sid       = "AllowRoot"
 
     principals {
       type        = "AWS"
@@ -71,9 +71,13 @@ data "aws_iam_policy_document" "kms_key_access_policy_doc" {
   dynamic "statement" {
     for_each = length(local.secret_read_principals) == 0 ? [] : [1]
     content {
-      effect    = "Allow"
-      sid = "AllowDecrypt"
-      actions   = ["kms:Decrypt"]
+      effect = "Allow"
+      sid    = "AllowDecrypt"
+      actions = [
+        "kms:Decrypt",
+        "kms:DescribeKey",
+        "kms:GenerateDataKey*"
+      ]
       resources = ["*"]
 
       dynamic "principals" {
@@ -135,7 +139,7 @@ data "aws_iam_policy_document" "secret_access_policy_doc" {
   dynamic "statement" {
     for_each = length(local.secret_read_principals) == 0 ? [] : [1]
     content {
-      sid = "AllowRead"
+      sid    = "AllowRead"
       effect = "Allow"
       actions = [
         "secretsmanager:GetResourcePolicy",
