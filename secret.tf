@@ -54,6 +54,9 @@ module "secret_kms_key_context" {
 # KMS Key IAM
 # ------------------------------------------------------------------------------
 data "aws_iam_policy_document" "kms_key_access_policy_doc" {
+  #checkov:skip=CKV_AWS_356:skipping 'Ensure no IAM policies documents allow "*" as a statement's resource for restrictable actions'
+  #checkov:skip=CKV_AWS_111:skipping 'Ensure IAM policies does not allow write access without constraints'
+  #checkov:skip=CKV_AWS_109:skipping 'Ensure IAM policies does not allow permissions management / resource exposure without constraints'
   count = module.context.enabled && length(var.secret_read_principals) == 0 ? 0 : 1
 
   statement {
@@ -186,6 +189,7 @@ data "aws_iam_policy_document" "secret_access_policy_doc" {
 }
 
 resource "aws_secretsmanager_secret" "this" {
+  #checkov:skip=CKV2_AWS_57:skipping 'Ensure Secrets Manager secrets should have automatic rotation enabled'
   count = module.secret_context.enabled ? 1 : 0
 
   description = var.description

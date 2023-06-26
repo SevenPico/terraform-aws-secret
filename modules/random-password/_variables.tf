@@ -49,7 +49,7 @@ variable "secret_read_principals" {
     identifiers = list(string)
     condition   = any
   }))
-  default = {}
+  default     = {}
   description = <<EOF
 The following example input Allows for the specification of Principals as well as Principals with Conditions.
 If no Conditions are needed, the Condition block can be set to null, but that needs to be consistent for each map item
