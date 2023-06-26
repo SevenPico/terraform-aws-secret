@@ -19,32 +19,32 @@
 ##  This file contains code written by SevenPico, Inc.
 ## ----------------------------------------------------------------------------
 module "secret" {
-  source = "../.."
+  source  = "../.."
   context = module.context.self
 
-  description            = "Example secret"
-  secret_ignore_changes  = true
-  create_sns             = true
+  description           = "Example secret"
+  secret_ignore_changes = true
+  create_sns            = true
   secret_read_principals = {
     AllowRootRead = {
-      type        = "AWS"
+      type = "AWS"
       identifiers = [
         try(data.aws_caller_identity.current[0].account_id, "")
       ]
       condition = {
-        test   = null
+        test = null
         values = [
         ]
         variable = null
       }
     },
     AllowCooCooRead = {
-      type        = "AWS"
+      type = "AWS"
       identifiers = [
         "516430685960"
       ]
       condition = {
-        test   = null
+        test = null
         values = [
         ]
         variable = null
@@ -53,7 +53,7 @@ module "secret" {
     AllowOrgRead = {
       type        = "AWS"
       identifiers = ["*"]
-      condition   = {
+      condition = {
         test     = "ForAnyValue:StringLike"
         values   = ["texas/*"]
         variable = "aws:PrincipalOrgPaths"
@@ -62,7 +62,7 @@ module "secret" {
     AllowOrgRead2 = {
       type        = "AWS"
       identifiers = ["*"]
-      condition   = {
+      condition = {
         test     = "ForAnyValue:StringLike"
         values   = ["testing/*"]
         variable = "aws:PrincipalOrgPaths"
@@ -71,12 +71,12 @@ module "secret" {
   }
   sns_pub_principals = {
     AllowRootPub = {
-      type        = "AWS"
+      type = "AWS"
       identifiers = [
         try(data.aws_caller_identity.current[0].account_id, "")
       ]
       condition = {
-        test   = null
+        test = null
         values = [
         ]
         variable = null
@@ -85,7 +85,7 @@ module "secret" {
     AllowOrgPub = {
       type        = "AWS"
       identifiers = ["*"]
-      condition   = {
+      condition = {
         test     = "ForAnyValue:StringLike"
         values   = ["abc123def/*"]
         variable = "aws:PrincipalOrgPaths"
@@ -94,12 +94,12 @@ module "secret" {
   }
   sns_sub_principals = {
     AllowRootSub = {
-      type        = "AWS"
+      type = "AWS"
       identifiers = [
         try(data.aws_caller_identity.current[0].account_id, "")
       ]
       condition = {
-        test   = null
+        test = null
         values = [
         ]
         variable = null
@@ -108,7 +108,7 @@ module "secret" {
     AllowOrgSub = {
       type        = "AWS"
       identifiers = ["*"]
-      condition   = {
+      condition = {
         test     = "ForAnyValue:StringLike"
         values   = ["abc123def/*"]
         variable = "aws:PrincipalOrgPaths"
