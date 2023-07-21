@@ -63,9 +63,9 @@ variable "password_include_upper" {
 }
 
 variable "keyname_password" {
-  type = string
+  type        = string
   description = "The keyname to use for the password value stored in the secret string."
-  default = "PASSWORD"
+  default     = "PASSWORD"
 }
 
 variable "additional_secrets" {

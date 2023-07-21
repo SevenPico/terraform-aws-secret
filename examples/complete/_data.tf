@@ -35,6 +35,6 @@ data "aws_partition" "current" {
 }
 
 locals {
-  arn_prefix = "arn:${try(data.aws_partition.current[0].partition, "")}"
-  arn_template = "${local.arn_prefix}:%s:${try(data.aws_region.current[0].name,"")}:${try(data.aws_caller_identity.current[0].account_id, "")}%s"
+  arn_prefix   = "arn:${try(data.aws_partition.current[0].partition, "")}"
+  arn_template = "${local.arn_prefix}:%s:${try(data.aws_region.current[0].name, "")}:${try(data.aws_caller_identity.current[0].account_id, "")}%s"
 }
