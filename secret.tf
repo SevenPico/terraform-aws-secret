@@ -190,7 +190,7 @@ data "aws_iam_policy_document" "secret_access_policy_doc" {
 
 resource "aws_secretsmanager_secret" "this" {
   #checkov:skip=CKV2_AWS_57:skipping 'Ensure Secrets Manager secrets should have automatic rotation enabled'
-  count = module.secret_context.enabled ? 1 : 0
+  count      = module.secret_context.enabled ? 1 : 0
   depends_on = [module.kms_key]
 
   description = var.description
@@ -199,11 +199,11 @@ resource "aws_secretsmanager_secret" "this" {
   policy      = one(data.aws_iam_policy_document.secret_access_policy_doc[*].json)
   tags        = module.secret_context.tags
 
-   dynamic "replica" {
+  dynamic "replica" {
     for_each = var.replica_regions
 
     content {
-      kms_key_id = module.kms_key.key_id
+      kms_key_id = module.context.enabled && var.kms_key_multi_region ? module.kms_key.key_id : ""
       region     = replica.value
     }
   }
