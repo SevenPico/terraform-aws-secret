@@ -42,7 +42,3 @@ output "kms_key_alias_arn" {
 output "sns_topic_arn" {
   value = one(aws_sns_topic.secret_update[*].id)
 }
-
-output "secret_multi_region" {
-  value = var.secret_multi_region
-}
