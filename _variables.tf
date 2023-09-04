@@ -154,8 +154,9 @@ variable "kms_key_multi_region" {
   description = "Indicates whether the KMS key is a multi-Region (true) or regional (false) key."
 }
 
-variable "secret_multi_region" {
+variable "replica_regions" {
   type    = list(string)
   default = []
+  description = "The list of regions to replicate to."
 }
 
