@@ -120,5 +120,5 @@ module "secret" {
     abc : 123
   })
   kms_key_multi_region = true
-  replica_regions = ["us-west-1"]
+#  replica_regions = ["us-west-1"]
 }
