@@ -198,10 +198,13 @@ resource "aws_secretsmanager_secret" "this" {
   policy      = one(data.aws_iam_policy_document.secret_access_policy_doc[*].json)
   tags        = module.secret_context.tags
 
-   replica {
-#    for_each = var.secret_multi_region
+   dynamic "replica" {
+    for_each = var.secret_multi_region
+
+    content {
       kms_key_id = var.kms_key_multi_region ? module.kms_key.key_id : ""
-      region     = "us-west-2"
+      region     = replica.key
+    }
   }
 }
 
