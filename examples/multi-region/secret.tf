@@ -120,5 +120,4 @@ module "secret" {
     abc : 123
   })
   kms_key_multi_region = true
-  secret_multi_region = ["us-west-1"]
 }

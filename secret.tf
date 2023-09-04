@@ -199,11 +199,11 @@ resource "aws_secretsmanager_secret" "this" {
   tags        = module.secret_context.tags
 
    dynamic "replica" {
-    for_each = var.secret_multi_region
+#    for_each = var.secret_multi_region
 
     content {
       kms_key_id = var.kms_key_multi_region ? module.kms_key.key_id : ""
-      region     = replica.key
+      region     = "us-west-2"
     }
   }
 }
