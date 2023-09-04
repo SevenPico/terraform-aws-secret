@@ -154,3 +154,8 @@ variable "kms_key_multi_region" {
   description = "Indicates whether the KMS key is a multi-Region (true) or regional (false) key."
 }
 
+variable "secret_multi_region" {
+  type    = list(string)
+  default = []
+}
+
