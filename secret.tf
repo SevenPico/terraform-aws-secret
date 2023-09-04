@@ -203,7 +203,7 @@ resource "aws_secretsmanager_secret" "this" {
 
     content {
       kms_key_id = var.kms_key_multi_region ? module.kms_key.key_id : ""
-      region     = replica.key
+      region     = replica.value
     }
   }
 }
