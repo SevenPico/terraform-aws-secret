@@ -31,6 +31,11 @@ locals {
   secret_read_principals_with_condition = { for k, p in var.secret_read_principals : k => p if try(p.condition.test, null) != null }
 }
 
+data "aws_kms_key" "kms_key" {
+  count = module.context.enabled && var.kms_key_enabled ? 1 : 0
+  key_id = var.kms_key_id
+}
+
 
 # ------------------------------------------------------------------------------
 # Secret Contexts

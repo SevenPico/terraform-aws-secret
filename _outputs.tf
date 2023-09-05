@@ -28,11 +28,11 @@ output "id" {
 }
 
 output "kms_key_arn" {
-  value = try(module.kms_key[0].key_arn, "")
+  value = var.kms_key_enabled ? try(module.kms_key[0].key_arn, "") : try(data.aws_kms_key.kms_key[0].arn)
 }
 
 output "kms_key_id" {
-  value = try(module.kms_key[0].key_id, "")
+  value = var.kms_key_enabled ? try(module.kms_key[0].key_id, "") : try(data.aws_kms_key.kms_key[0].key_id)
 }
 
 output "kms_key_alias_name" {
