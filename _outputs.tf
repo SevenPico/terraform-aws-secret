@@ -28,15 +28,19 @@ output "id" {
 }
 
 output "kms_key_arn" {
-  value = module.kms_key.key_arn
+  value = module.kms_key[0].key_arn
+}
+
+output "kms_key_id" {
+  value = module.kms_key[0].key_id
 }
 
 output "kms_key_alias_name" {
-  value = module.kms_key.alias_name
+  value = module.kms_key[0].alias_name
 }
 
 output "kms_key_alias_arn" {
-  value = module.kms_key.alias_arn
+  value = module.kms_key[0].alias_arn
 }
 
 output "sns_topic_arn" {

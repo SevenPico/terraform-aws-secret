@@ -119,6 +119,7 @@ data "aws_iam_policy_document" "kms_key_access_policy_doc" {
 # KMS Key
 # ------------------------------------------------------------------------------
 module "kms_key" {
+  count   = module.context.enabled && var.kms_key_id == null ? 1 : 0
   source  = "SevenPicoForks/kms-key/aws"
   version = "2.0.0"
   context = module.secret_kms_key_context.self
@@ -191,10 +192,9 @@ data "aws_iam_policy_document" "secret_access_policy_doc" {
 resource "aws_secretsmanager_secret" "this" {
   #checkov:skip=CKV2_AWS_57:skipping 'Ensure Secrets Manager secrets should have automatic rotation enabled'
   count      = module.secret_context.enabled ? 1 : 0
-  depends_on = [module.kms_key]
 
   description = var.description
-  kms_key_id  = module.kms_key.key_id
+  kms_key_id  = var.kms_key_id == null ? module.kms_key.key_id : var.kms_key_id
   name_prefix = "${module.secret_context.id}-"
   policy      = one(data.aws_iam_policy_document.secret_access_policy_doc[*].json)
   tags        = module.secret_context.tags
@@ -203,7 +203,7 @@ resource "aws_secretsmanager_secret" "this" {
     for_each = var.replica_regions
 
     content {
-      kms_key_id = module.context.enabled && var.kms_key_multi_region ? module.kms_key.key_id : ""
+      kms_key_id = var.kms_key_id == null ? module.kms_key.key_id : var.kms_key_id
       region     = replica.value
     }
   }

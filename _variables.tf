@@ -160,3 +160,8 @@ variable "replica_regions" {
   description = "The list of regions to replicate to."
 }
 
+variable "kms_key_id" {
+  type = string
+  default = null
+}
+
