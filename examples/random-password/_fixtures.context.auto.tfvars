@@ -39,4 +39,4 @@ name = "random-password"
 #descriptor_formats  =
 #labels_as_tags      =
 dns_name_format = "$${name}.$${domain_name}"
-domain_name = "secret-rp.7pi.io"
+domain_name     = "secret-rp.7pi.io"

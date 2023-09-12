@@ -55,7 +55,7 @@ variable "secret_read_principals" {
     identifiers = list(string)
     condition   = any
   }))
-  default = {}
+  default     = {}
   description = <<EOF
 The following example input Allows for the specification of Principals as well as Principals with Conditions.
 If no Conditions are needed, the Condition block can be set to null, but that needs to be consistent for each map item
@@ -152,5 +152,22 @@ variable "kms_key_multi_region" {
   type        = bool
   default     = false
   description = "Indicates whether the KMS key is a multi-Region (true) or regional (false) key."
+}
+
+variable "replica_regions" {
+  type        = list(string)
+  default     = []
+  description = "The list of regions to replicate to."
+}
+
+variable "kms_key_enabled" {
+  type        = bool
+  default     = true
+  description = "When this set to false a value must be put into kms_key_id"
+}
+
+variable "kms_key_id" {
+  type    = string
+  default = null
 }
 
