@@ -15,34 +15,26 @@
 ## ----------------------------------------------------------------------------
 
 ## ----------------------------------------------------------------------------
-##  ./_outputs.tf
+##  ./_data.tf
 ##  This file contains code written by SevenPico, Inc.
 ## ----------------------------------------------------------------------------
 
-output "arn" {
-  value = try(aws_secretsmanager_secret.this[0].arn, "")
+# The AWS region currently being used.
+data "aws_region" "current" {
+  count = module.context.enabled ? 1 : 0
 }
 
-output "id" {
-  value = try(aws_secretsmanager_secret.this[0].id, "")
+# The AWS account id
+data "aws_caller_identity" "current" {
+  count = module.context.enabled ? 1 : 0
 }
 
-output "kms_key_arn" {
-  value = var.kms_key_enabled ? module.kms_key.key_arn : try(data.aws_kms_key.kms_key[0].arn, "")
+# The AWS partition (commercial or govcloud)
+data "aws_partition" "current" {
+  count = module.context.enabled ? 1 : 0
 }
 
-output "kms_key_id" {
-  value = var.kms_key_enabled ? module.kms_key.key_id : try(data.aws_kms_key.kms_key[0].key_id, "")
-}
-
-output "kms_key_alias_name" {
-  value = module.kms_key.alias_name
-}
-
-output "kms_key_alias_arn" {
-  value = module.kms_key.alias_arn
-}
-
-output "sns_topic_arn" {
-  value = try(aws_sns_topic.secret_update[0].id, "")
+locals {
+  arn_prefix   = "arn:${try(data.aws_partition.current[0].partition, "")}"
+  arn_template = "${local.arn_prefix}:%s:${try(data.aws_region.current[0].name, "")}:${try(data.aws_caller_identity.current[0].account_id, "")}%s"
 }
