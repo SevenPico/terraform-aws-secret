@@ -161,13 +161,13 @@ variable "replica_regions" {
 }
 
 variable "kms_key_enabled" {
-  type = bool
-  default = true
+  type        = bool
+  default     = true
   description = "When this set to false a value must be put into kms_key_id"
 }
 
 variable "kms_key_id" {
-  type = string
+  type    = string
   default = null
 }
 

@@ -32,7 +32,7 @@ locals {
 }
 
 data "aws_kms_key" "kms_key" {
-  count = module.context.enabled || var.kms_key_enabled ? 1 : 0
+  count  = module.context.enabled || var.kms_key_enabled ? 1 : 0
   key_id = var.kms_key_id
 }
 
@@ -196,7 +196,7 @@ data "aws_iam_policy_document" "secret_access_policy_doc" {
 
 resource "aws_secretsmanager_secret" "this" {
   #checkov:skip=CKV2_AWS_57:skipping 'Ensure Secrets Manager secrets should have automatic rotation enabled'
-  count      = module.secret_context.enabled ? 1 : 0
+  count = module.secret_context.enabled ? 1 : 0
 
   description = var.description
   kms_key_id  = var.kms_key_enabled ? module.kms_key[0].key_id : var.kms_key_id
