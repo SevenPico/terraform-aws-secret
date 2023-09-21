@@ -160,12 +160,6 @@ variable "replica_regions" {
   description = "The list of regions to replicate to."
 }
 
-variable "kms_key_enabled" {
-  type        = bool
-  default     = true
-  description = "When this set to false a value must be put into kms_key_id"
-}
-
 variable "kms_key_id" {
   type    = string
   default = null
