@@ -162,6 +162,6 @@ variable "replica_regions" {
 
 variable "kms_key_id" {
   type    = string
-  default = null
+  default = ""
 }
 
