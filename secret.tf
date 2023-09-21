@@ -29,10 +29,11 @@ locals {
 
   secret_read_principals                = { for k, p in var.secret_read_principals : k => p if try(p.condition.test, null) == null }
   secret_read_principals_with_condition = { for k, p in var.secret_read_principals : k => p if try(p.condition.test, null) != null }
+  kms_key_enabled                       = length(var.kms_key_id) > 0
 }
 
 data "aws_kms_key" "kms_key" {
-  count  = module.context.enabled || var.kms_key_enabled ? 1 : 0
+  count  = module.context.enabled && local.kms_key_enabled ? 1 : 0
   key_id = var.kms_key_id
 }
 
@@ -127,7 +128,7 @@ module "kms_key" {
   source  = "SevenPicoForks/kms-key/aws"
   version = "2.0.0"
   context = module.secret_kms_key_context.self
-  enabled = module.context.enabled && var.kms_key_enabled
+  enabled = module.context.enabled && !local.kms_key_enabled
 
   customer_master_key_spec = "SYMMETRIC_DEFAULT"
   deletion_window_in_days  = var.kms_key_deletion_window_in_days
@@ -199,7 +200,7 @@ resource "aws_secretsmanager_secret" "this" {
   count = module.secret_context.enabled ? 1 : 0
 
   description = var.description
-  kms_key_id  = var.kms_key_enabled ? module.kms_key[0].key_id : var.kms_key_id
+  kms_key_id  = local.kms_key_enabled ? var.kms_key_id : module.kms_key.key_id
   name_prefix = "${module.secret_context.id}-"
   policy      = one(data.aws_iam_policy_document.secret_access_policy_doc[*].json)
   tags        = module.secret_context.tags
@@ -208,7 +209,7 @@ resource "aws_secretsmanager_secret" "this" {
     for_each = var.replica_regions
 
     content {
-      kms_key_id = var.kms_key_enabled ? module.kms_key[0].key_id : var.kms_key_id
+      kms_key_id = var.kms_key_enabled ? module.kms_key.key_id : var.kms_key_id
       region     = replica.value
     }
   }
