@@ -36,7 +36,7 @@ output "kms_key_id" {
 }
 
 output "kms_key_alias_name" {
-  value = try(module.kms_key.alias_name,"")
+  value = try(module.kms_key.alias_name, "")
 }
 
 output "kms_key_alias_arn" {
