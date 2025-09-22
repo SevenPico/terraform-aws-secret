@@ -46,7 +46,7 @@ module "secret_context" {
   version    = "2.0.0"
   context    = module.context.self
   enabled    = module.context.enabled
-  attributes = ["secret"]
+  attributes = var.attributes_override != null ? var.attributes_override : ["secret"]
 }
 
 module "secret_kms_key_context" {

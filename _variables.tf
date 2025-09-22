@@ -165,3 +165,8 @@ variable "kms_key_id" {
   default = null
 }
 
+variable "attributes_override" {
+  type = list(string)
+  default = null
+}
+
