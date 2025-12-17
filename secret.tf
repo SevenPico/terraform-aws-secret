@@ -46,14 +46,14 @@ module "secret_context" {
   version    = "2.0.0"
   context    = module.context.self
   enabled    = module.context.enabled
-  attributes = ["secret"]
+  attributes = var.secret_attributes_override != null ? var.secret_attributes_override : ["secret"]
 }
 
 module "secret_kms_key_context" {
   source     = "SevenPico/context/null"
   version    = "2.0.0"
   context    = module.secret_context.self
-  attributes = ["kms", "key"]
+  attributes = var.kms_key_attributes_override != null ? var.kms_key_attributes_override : ["kms", "key"]
 }
 
 # ------------------------------------------------------------------------------
