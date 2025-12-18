@@ -33,7 +33,7 @@ locals {
 }
 
 data "aws_kms_key" "kms_key" {
-  count  = module.context.enabled && !local.kms_key_enabled ? 1 : 0
+  count  = var.kms_key_id != null && var.kms_key_id != "" ? 1 : 0
   key_id = var.kms_key_id
 }
 
