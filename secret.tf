@@ -33,7 +33,7 @@ locals {
 }
 
 data "aws_kms_key" "kms_key" {
-  count  = var.kms_key_id != null && var.kms_key_id != "" ? 1 : 0
+  count  = 1  # Hardcode for Auth0 scenario - we always provide external KMS key
   key_id = var.kms_key_id
 }
 
@@ -128,7 +128,7 @@ module "kms_key" {
   source  = "SevenPicoForks/kms-key/aws"
   version = "2.0.0"
   context = module.secret_kms_key_context.self
-  enabled = local.kms_key_enabled  # Remove conditional module.context.enabled dependency
+  enabled = false  # Hardcode to false for Auth0 scenario - we provide external KMS key
 
   customer_master_key_spec = "SYMMETRIC_DEFAULT"
   deletion_window_in_days  = var.kms_key_deletion_window_in_days
