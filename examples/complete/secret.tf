@@ -25,6 +25,7 @@ module "secret" {
   description           = "Example secret"
   secret_ignore_changes = true
   create_sns            = true
+  kms_key_id = null
   secret_read_principals = {
     AllowRootRead = {
       type = "AWS"
