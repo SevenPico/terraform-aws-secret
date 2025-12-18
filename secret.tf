@@ -128,7 +128,7 @@ module "kms_key" {
   source  = "SevenPicoForks/kms-key/aws"
   version = "2.0.0"
   context = module.secret_kms_key_context.self
-  enabled = module.context.enabled && local.kms_key_enabled
+  enabled = local.kms_key_enabled  # Remove conditional module.context.enabled dependency
 
   customer_master_key_spec = "SYMMETRIC_DEFAULT"
   deletion_window_in_days  = var.kms_key_deletion_window_in_days
