@@ -29,7 +29,7 @@ locals {
 
   secret_read_principals                = { for k, p in var.secret_read_principals : k => p if try(p.condition.test, null) == null }
   secret_read_principals_with_condition = { for k, p in var.secret_read_principals : k => p if try(p.condition.test, null) != null }
-  kms_key_enabled                       = var.kms_key_id != null && var.kms_key_id != ""
+  kms_key_enabled                       = !var.create_kms_key
 }
 
 data "aws_kms_key" "kms_key" {

@@ -165,6 +165,12 @@ variable "kms_key_id" {
   default = null
 }
 
+variable "create_kms_key" {
+  type        = bool
+  default     = true
+  description = "Set to false when providing an external kms_key_id. Controls KMS key creation without depending on the runtime value of kms_key_id."
+}
+
 variable "secret_attributes_override" {
   type    = list(string)
   default = null
